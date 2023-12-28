@@ -1,9 +1,10 @@
+import { useState } from "react";
 import "./App.css";
 import { FriendList } from "./FriendList";
 import { SplitBillForm } from "./SplitBillForm";
 
 function App() {
-  const initialFriends = [
+  const [friends, setFriends] = useState([
     {
       id: 118836,
       name: "Clark",
@@ -22,11 +23,45 @@ function App() {
       image: "https://i.pravatar.cc/48?u=499476",
       balance: 0,
     },
-  ];
+  ]);
+
+  const [selectedId, setSelectedId] = useState(null);
+
+  const addFriend = function (friend) {
+    setFriends((friendList) => [...friendList, friend]);
+  };
+
+  const handleSelectedId = function (id) {
+    setSelectedId((v) => (v === id ? null : id));
+  };
+
+  const handleSplitBill = function (value) {
+    setFriends((friends) =>
+      friends.map((friend) =>
+        friend.id === selectedId
+          ? { ...friend, balance: friend.balance + value }
+          : friend
+      )
+    );
+    setSelectedId(null);
+  };
+
   return (
     <div className="app">
-      <FriendList initialFriends={initialFriends} />
-      <SplitBillForm />
+      <FriendList
+        friends={friends}
+        addFriend={addFriend}
+        selectedId={selectedId}
+        handleSelectedId={handleSelectedId}
+      />
+      {selectedId ? (
+        <SplitBillForm
+          selectedFriendData={friends.find(
+            (friend) => friend.id === selectedId
+          )}
+          handleSplitBill={handleSplitBill}
+        />
+      ) : null}
     </div>
   );
 }
